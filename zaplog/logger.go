@@ -39,7 +39,7 @@ func New(outConfig map[string][]string, debug bool) (*ZapLog, error) {
 			return nil, fmt.Errorf("wrong name %s", key)
 		}
 		if len(val) < 1 {
-			return nil, fmt.Errorf("string array must be min lenght 1 elements")
+			return nil, fmt.Errorf("string array must have at least 1 element")
 		}
 	}
 	z := &ZapLog{

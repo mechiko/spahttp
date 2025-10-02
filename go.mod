@@ -6,7 +6,6 @@ require (
 	github.com/alexedwards/scs/v2 v2.9.0
 	github.com/canidam/echo-scs-session v1.0.0
 	github.com/donseba/go-htmx v1.12.0
-	github.com/google/uuid v1.6.0
 	github.com/justinas/nosurf v1.2.0
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/mechiko/dbscan v0.0.0-20250824090424-a3ed3ef70222

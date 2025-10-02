@@ -17,7 +17,6 @@ func (r *Repository) prepareSelf() (err error) {
 	}()
 	selfInfo := r.Info(dbscan.Other)
 	if selfInfo == nil {
-		//return fmt.Errorf("%s get info: nil", modError)
 		return fmt.Errorf("%s lock info %v is nil or not exists", modError, dbscan.Other)
 	}
 	self, err := selfdb.New(selfInfo)

@@ -14,7 +14,7 @@ import (
 type app struct {
 	config    *config.Config
 	options   *config.Configuration // копия config.Configuration
-	loger     *zap.SugaredLogger
+	logger    *zap.SugaredLogger
 	pwd       string
 	startTime time.Time
 	endTime   time.Time
@@ -23,9 +23,15 @@ type app struct {
 var _ domain.Apper = (*app)(nil)
 
 func New(cfg *config.Config, logger *zap.SugaredLogger, pwd string) *app {
+	if logger == nil {
+		logger = zap.NewNop().Sugar()
+	}
+	if cfg == nil {
+		panic("nil *config.Config passed to app.New")
+	}
 	newApp := &app{}
 	newApp.pwd = pwd
-	newApp.loger = logger
+	newApp.logger = logger
 	newApp.config = cfg
 	newApp.options = cfg.Configuration()
 	newApp.initDateMn()
@@ -35,7 +41,7 @@ func New(cfg *config.Config, logger *zap.SugaredLogger, pwd string) *app {
 func (a *app) initDateMn() {
 	loc, err := time.LoadLocation("Europe/Moscow")
 	if err != nil {
-		a.loger.Warnf("failed to load timezone, using UTC: %v", err)
+		a.logger.Warnf("failed to load timezone, using UTC: %v", err)
 		loc = time.UTC
 	}
 	t := time.Now().In(loc)
@@ -82,7 +88,7 @@ func (a *app) Config() *config.Config {
 }
 
 func (a *app) Logger() *zap.SugaredLogger {
-	return a.loger
+	return a.logger
 }
 
 // выдаем адрес структуры опций программы чтобы править по месту

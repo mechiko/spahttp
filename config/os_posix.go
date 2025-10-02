@@ -2,12 +2,10 @@
 
 package config
 
-// import "github.com/mechiko/telebot_v4/internal/entity"
-// if !entity.supported
 var (
-	dbPath               = "/var/local/telebot"
-	logPath              = "/var/log/telebot"
-	configPath           = "/etc/telebot"
+	dbPath               = "/var/local/spahttp"
+	logPath              = "/var/log/spahttp"
+	configPath           = "/etc/spahttp"
 	Supported            = true
 	Linux                = true
 	Windows              = false

@@ -142,8 +142,7 @@ func (c *Config) createDirectory(path string) (string, error) {
 // создаст весь путь вложенных каталогов
 func pathCreate(path string) error {
 	if path != "" {
-		if err := os.MkdirAll(path, os.ModePerm); err != nil { // создает весь путь
-			// if err := os.Mkdir(path, os.ModePerm); err != nil {
+		if err := os.MkdirAll(path, os.FileMode(PosixChownPath)); err != nil {
 			return err
 		}
 	}

@@ -42,6 +42,9 @@ func createLogger(output []string, debug bool) (*zap.Logger, error) {
 	if debug {
 		level = zap.DebugLevel
 	}
+	if len(output) == 0 {
+		output = []string{"stderr"}
+	}
 	config := zap.Config{
 		Level:             zap.NewAtomicLevelAt(level),
 		Development:       debug,
@@ -52,6 +55,9 @@ func createLogger(output []string, debug bool) (*zap.Logger, error) {
 		EncoderConfig:     encoderConfig,
 		OutputPaths:       output,
 		ErrorOutputPaths:  []string{"stderr"},
+	}
+	if !debug {
+		config.Sampling = &zap.SamplingConfig{Initial: 100, Thereafter: 100}
 	}
 
 	logger, err := config.Build()

@@ -36,17 +36,22 @@ func (r *Repository) LockOther() (*selfdb.DbSelf, error) {
 	return db, nil
 }
 
-func (r *Repository) UnlockOther(db *selfdb.DbSelf) error {
+func (r *Repository) UnlockOther(db *selfdb.DbSelf) (retErr error) {
 	if db == nil {
 		return fmt.Errorf("%s unlock db %v is nil", modError, dbscan.Other)
 	}
 	errClose := db.Close()
 	mu, ok := r.dbMutex[db.InfoType()]
 	if ok {
+		defer func() {
+			if rec := recover(); rec != nil {
+				retErr = errors.Join(errClose, fmt.Errorf("%s unlock panic: %v", modError, rec))
+			}
+		}()
 		mu.mutex.Unlock()
 	} else {
 		errUnlock := fmt.Errorf("%s unlock not present mutex %v", modError, db.InfoType())
 		return errors.Join(errClose, errUnlock)
 	}
-	return errClose
+	return errors.Join(retErr, errClose)
 }

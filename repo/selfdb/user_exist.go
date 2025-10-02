@@ -15,13 +15,18 @@ func (c *DbSelf) UserExists(field models.LookupField, value any) (bool, error) {
 	case models.ID:
 		res = col.Find("id", value)
 	case models.Email:
+		res = col.Find("email", value)
 	case models.Username:
+		res = col.Find("login", value)
 	default:
 		return false, fmt.Errorf("invalid lookup field")
 	}
 	err := res.One(&user)
 	if err != nil {
-		return false, fmt.Errorf("error lookup field %w", err)
+		if err == db.ErrNoMoreRows {
+			return false, nil
+		}
+		return false, fmt.Errorf("error looking up user: %w", err)
 	}
-	return false, nil
+	return true, nil
 }

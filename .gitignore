@@ -130,6 +130,7 @@ distbin/
 output/
 
 .nevakod/
+.spahttp/
 .dist/
 .data/
 .vscode/

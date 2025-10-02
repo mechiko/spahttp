@@ -46,7 +46,7 @@ func (m *Application) ReadState(app domain.Apper, _ *repo.Repository) (err error
 	return nil
 }
 
-func (a *Application) Copy() (interface{}, error) {
+func (a *Application) Copy() (domain.Modeler, error) {
 	// shallow copy that`s why fields is simple
 	dst := *a
 	return &dst, nil

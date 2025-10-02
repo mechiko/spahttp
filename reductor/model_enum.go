@@ -1,6 +1,9 @@
 package reductor
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 // этот тип для ведения списка всех моделей
 // просто запоминать по строке сложно вычислить ошибки в программе
@@ -41,23 +44,23 @@ func (s ModelType) String() string {
 }
 
 // строка приводится в нижний регистр потом сравнивается
-func ModelTypeFromString(s string) ModelType {
+func ModelTypeFromString(s string) (ModelType, error) {
 	s = strings.ToLower(s)
 	switch s {
 	case "home":
-		return Home
+		return Home, nil
 	case "trueclient":
-		return TrueClient
+		return TrueClient, nil
 	case "application":
-		return Application
+		return Application, nil
 	case "header":
-		return Header
+		return Header, nil
 	case "footer":
-		return Footer
+		return Footer, nil
 	case "setup":
-		return Setup
+		return Setup, nil
 	case "index":
-		return Index
+		return Index, nil
 	}
-	panic("неизвестная ModelTypeFromString")
+	return 0, fmt.Errorf("unknown model type: %s", s)
 }
