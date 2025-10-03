@@ -23,12 +23,17 @@ func (r *DbSelf) Check() (err error) {
 		uri := r.dbInfo.SqliteUri(filepath.Join(r.dbInfo.Path, r.dbInfo.File))
 		uri.Options["mode"] = "rwc"
 		r.dbSession, err = sqlite.Open(uri)
+		if err != nil {
+			r.dbInfo.Exists = false
+			return fmt.Errorf("%s prepareSelf ошибка создания БД %w", modError, err)
+		}
 	} else {
 		r.dbSession, err = r.dbInfo.Connect()
-	}
-	if err != nil {
-		r.dbInfo.Exists = false
-		return fmt.Errorf("%s prepareSelf ошибка подключения к БД %w", modError, err)
+		if err != nil {
+			r.dbInfo.Exists = false
+			return fmt.Errorf("%s prepareSelf ошибка подключения к БД %w", modError, err)
+		}
+		return nil
 	}
 
 	db, ok := r.dbSession.Driver().(*sql.DB)

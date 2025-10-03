@@ -32,7 +32,6 @@ var home = flag.Bool("home", false, "")
 
 // set pwd to path exe for deamon
 func init() {
-	flag.Parse()
 	fileExe = os.Args[0]
 	var err error
 	dir, err = filepath.Abs(filepath.Dir(fileExe))
@@ -47,6 +46,7 @@ func init() {
 }
 
 func main() {
+	flag.Parse()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -126,7 +126,8 @@ func main() {
 	group.Go(func() error {
 		go func() {
 			<-groupCtx.Done()
-			repoStart.Shutdown()
+			err := repoStart.Shutdown()
+			loger.Infof("repo shutdown %v", err)
 		}()
 		return repoStart.Run(groupCtx)
 	})

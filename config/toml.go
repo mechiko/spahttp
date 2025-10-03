@@ -3,7 +3,7 @@ package config
 var TomlConfig = []byte(`
 # This is a TOML document.
 hostname = "127.0.0.1"
-hostport = "8888"
+hostport = "443"
 browser = ""
 
 [layouts]

@@ -70,44 +70,6 @@
       console.log("Send ERROR :", evt.detail);
     });
   </script>  
-  <script>
-    function setupEventSource(stream, handler) {
-      if (typeof(EventSource) === "undefined") {
-        console.warn("SSE unsupported in this browser");
-        return;
-      }
-      const source = new EventSource(`/sse?stream=${stream}`);
-      console.log(`EventSource(/sse/${stream})`);
-      source.onmessage = handler;
-      return source;
-    }
-
-    // Example taken from: https://www.w3schools.com/html/html5_serversentevents.asp
-    // sse подключение и обновление по событиям
-    setupEventSource("error", function(event) {
-      console.log("sse error: ", event);
-      Swal.fire({
-        title: "Ошибка",
-        html: event.data,
-      });
-    });
-
-    setupEventSource("info", function(event) {
-      console.log("sse info: ", event);
-      Swal.fire({
-        html: event.data,
-        icon: "info",
-      });
-    });
- 
-    document.body.addEventListener("showMessage", function(evt){
-      console.log('event ', evt);
-      Swal.fire({
-          icon: evt.detail.level,
-          html: evt.detail.message,
-        });
-    })
-  </script>
 </body>
 </html>
 

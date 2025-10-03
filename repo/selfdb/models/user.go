@@ -1,6 +1,7 @@
 package models
 
 type User struct {
+	Id      int    `db:"id,omitempty"`
 	Login   string `db:"login"`
 	Passwd  string `db:"passwd"`
 	Name    string `db:"name"`

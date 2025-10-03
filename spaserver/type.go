@@ -8,6 +8,7 @@ import (
 	"spahttp/domain"
 	"spahttp/embedded"
 	"spahttp/spaserver/middleware"
+	"spahttp/spaserver/session"
 	"spahttp/spaserver/sse"
 	"spahttp/spaserver/templates"
 	"spahttp/spaserver/views"
@@ -17,7 +18,6 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2"
-	session "github.com/canidam/echo-scs-session"
 	"github.com/donseba/go-htmx"
 	"github.com/labstack/echo/v4"
 	emiddle "github.com/labstack/echo/v4/middleware"
@@ -52,7 +52,7 @@ type Server struct {
 	streamError     *sse.Stream
 	streamInfo      *sse.Stream
 	protected       *echo.Group // для защищенной области роутинга
-	dynamic         *echo.Group // для открытой области роутинга в данной реализации это только /login /sse
+	// dynamic         *echo.Group // для открытой области роутинга в данной реализации это только /login /sse
 }
 
 // var sseManager *sse.Server
@@ -67,7 +67,7 @@ func New(a domain.Apper, zl *zap.Logger, port string, debug bool) (ss *Server, e
 	e := echo.New()
 	e.Logger.SetOutput(io.Discard)
 	e.Use(
-		session.LoadAndSave(sess),
+		session.LoadAndSave(sess, a.Logger()),
 		zap4echo.Logger(zl),
 		zap4echo.Recover(zl),
 	)
@@ -77,11 +77,15 @@ func New(a domain.Apper, zl *zap.Logger, port string, debug bool) (ss *Server, e
 		AllowCredentials: true,
 		AllowMethods:     []string{echo.OPTIONS, echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
 	}))
+
 	e.Use(emiddle.StaticWithConfig(emiddle.StaticConfig{
+		Skipper:    func(c echo.Context) bool { return c.Path() == "/" },
 		HTML5:      true,
 		Root:       "root", // because files are located in `root` directory
 		Filesystem: http.FS(embedded.Root),
+		// Index:      "",
 	}))
+
 	e.Use(emiddle.SecureWithConfig(emiddle.SecureConfig{
 		XSSProtection:      "1; mode=block",
 		ContentTypeNosniff: "nosniff",
@@ -122,8 +126,10 @@ func New(a domain.Apper, zl *zap.Logger, port string, debug bool) (ss *Server, e
 	ss.streamError = ss.sseManager.CreateStream("error")
 	ss.streamInfo = ss.sseManager.CreateStream("info")
 	mdl := middleware.NewMiddleware(ss)
-	ss.protected = e.Group("site", session.LoadAndSave(ss.sessionManager), mdl.Authenticate, mdl.RedirectAuthenticatedUsers, mdl.LoginRequired)
-	e.Use(session.LoadAndSave(ss.sessionManager), mdl.Authenticate, mdl.RedirectAuthenticatedUsers)
+	ss.protected = e.Group("site", session.LoadAndSave(ss.sessionManager, ss.Logger()), mdl.Authenticate, mdl.RedirectAuthenticatedUsers, mdl.LoginRequired)
+	// ss.protected = e.Group("site", session.LoadAndSave(ss.sessionManager))
+	e.Use(session.LoadAndSave(ss.sessionManager, ss.Logger()), mdl.Authenticate, mdl.RedirectAuthenticatedUsers)
+	// e.Use(session.LoadAndSave(ss.sessionManager))
 	if err := ss.Routes(); err != nil {
 		return nil, fmt.Errorf("spaserver new routes error %w", err)
 	}
@@ -132,6 +138,7 @@ func New(a domain.Apper, zl *zap.Logger, port string, debug bool) (ss *Server, e
 
 func (s *Server) Start() {
 	go func() {
+		// s.notify <- s.server.StartTLS(s.addr, "cert.pem", "key.pem")
 		s.notify <- s.server.Start(s.addr)
 		close(s.notify)
 	}()

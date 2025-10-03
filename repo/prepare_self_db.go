@@ -19,14 +19,13 @@ func (r *Repository) prepareSelf() (err error) {
 	if selfInfo == nil {
 		return fmt.Errorf("%s lock info %v is nil or not exists", modError, dbscan.Other)
 	}
-	self, err := selfdb.New(selfInfo)
+	r.dbOther, err = selfdb.New(selfInfo)
 	if err != nil {
 		return fmt.Errorf("%s self new error %w", modError, err)
 	}
-	defer self.Close()
-
-	if !selfInfo.Exists {
-		return fmt.Errorf("%s get self db error!", modError)
-	}
-	return nil
+	return r.dbOther.Close()
+	// if !selfInfo.Exists {
+	// 	return fmt.Errorf("%s get self db error!", modError)
+	// }
+	// return nil
 }

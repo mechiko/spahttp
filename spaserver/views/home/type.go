@@ -36,8 +36,8 @@ func New(app IServer, grp *echo.Group) *page {
 		defaultTemplate: "index",
 		currentTemplate: "index",
 		title:           "Нанесение сегодня",
-		name:            strings.ToLower(string(domain.Home)),
 	}
+	t.name = strings.ToLower(string(t.model))
 	return t
 }
 

@@ -20,7 +20,7 @@ func (s *Server) loadViews() {
 	view2.Routes()
 	view2.InitData()
 
-	view3 := login.New(s, s.dynamic)
+	view3 := login.New(s)
 	s.views[view3.Model()] = view3
 	view3.Routes()
 	view3.InitData()

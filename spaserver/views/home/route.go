@@ -7,7 +7,8 @@ import (
 )
 
 func (t *page) Routes() error {
-	t.group.GET("/home", t.Index)
+	t.group.GET("/", t.Index)
+	t.group.GET("/index", t.Index)
 	return nil
 }
 

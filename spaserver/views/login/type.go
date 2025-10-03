@@ -4,6 +4,7 @@ import (
 	"spahttp/domain"
 	"strings"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/donseba/go-htmx"
 	"github.com/labstack/echo/v4"
 )
@@ -16,6 +17,7 @@ type IServer interface {
 	SetFlush(string, string)
 	RenderString(name string, data interface{}) (str string, err error)
 	Htmx() *htmx.HTMX
+	SessionManager() *scs.SessionManager
 }
 
 type page struct {
@@ -28,16 +30,15 @@ type page struct {
 	name            string
 }
 
-func New(app IServer, grp *echo.Group) *page {
+func New(app IServer) *page {
 	t := &page{
 		IServer:         app,
-		group:           grp,
-		model:           domain.Home,
+		model:           domain.Login,
 		defaultTemplate: "index",
 		currentTemplate: "index",
 		title:           "Нанесение сегодня",
-		name:            strings.ToLower(string(domain.Home)),
 	}
+	t.name = strings.ToLower(string(t.model))
 	return t
 }
 

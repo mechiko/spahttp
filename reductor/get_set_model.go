@@ -11,6 +11,7 @@ import (
 // вернет модель из мап или nil если запрошенной модели нет
 // возвращает указатель модели
 func (rdc *Reductor) Model(page domain.Model) (interface{}, error) {
+	rdc.logger.Debugf("reductor model() %v", page.String())
 	rdc.mutex.RLock()
 	defer rdc.mutex.RUnlock()
 
@@ -32,6 +33,7 @@ func (rdc *Reductor) Model(page domain.Model) (interface{}, error) {
 // в редукторе модели храним тоже по указателям
 // send - извещать в канал о смене состояния (это когда смена состояния в форме которой незачем обновлятся)
 func (rdc *Reductor) SetModel(model domain.Modeler, send bool) error {
+	rdc.logger.Debugf("reductor setmodel() %v", model.Model())
 	rdc.mutex.Lock()
 	defer rdc.mutex.Unlock()
 	if !utility.IsPointer(model) {

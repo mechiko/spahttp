@@ -3,6 +3,7 @@ package repo
 import (
 	"errors"
 	"fmt"
+	"spahttp/repo/selfdb"
 	"sync"
 
 	"github.com/mechiko/dbscan"
@@ -24,6 +25,7 @@ type Repository struct {
 	dbs     *dbscan.Dbs
 	dbMutex map[dbscan.DbInfoType]*singleMutex
 	listDbs []dbscan.DbInfoType
+	dbOther *selfdb.DbSelf
 }
 
 // dbPath для своей БД

@@ -106,7 +106,8 @@ CREATE TABLE if not exists state_key (
 
 -- таблица логинов клиентов на всякий пожарный чтобы связь с клиентом была
 CREATE TABLE if not exists users (
-  login TEXT NOT NULL DEFAULT ('') PRIMARY KEY,
+  id INTEGER NOT NULL DEFAULT (0) PRIMARY KEY,
+  login TEXT NOT NULL DEFAULT (''),
   passwd TEXT DEFAULT(''),
   name TEXT DEFAULT(''),
   email TEXT DEFAULT(''),
@@ -135,9 +136,9 @@ INSERT OR REPLACE INTO state_key(key, is_examen, is_intro, description) VALUES
 ('ИДЕНТ', 0, 1 ,'идентификатор');
 
 INSERT OR REPLACE INTO users(login, passwd, name, email, active, is_admin, rem) VALUES 
-	('kbprime@mail.ru', '243261243038245242413234514a34746c6656366542356e36664e704f4e303665344f57477236775138692e6373623671742e4a7163786e7775456d', 'mikl', 'kbprime@mail.ru', 1, 1, 'author'),
-	('a.kuleshov.m@gmail.com', '243261243038245242413234514a34746c6656366542356e36664e704f4e303665344f57477236775138692e6373623671742e4a7163786e7775456d', 'Admin', 'a.kuleshov.m@gmail.com', 1, 1, 'na4alnik'),
-  ('n91n91@mail.ru', '243261243038245242413234514a34746c6656366542356e36664e704f4e303665344f57477236775138692e6373623671742e4a7163786e7775456d', 'nastya', 'n91n91@mail.ru', 1, 1, 'info');
+	('kbprime@mail.ru', '$2a$08$PjVaxr7RxjrHWpW0laJwcuKISPNPSOxCkbHCxZvHJkQKXsQUHDKA2', 'mikl', 'kbprime@mail.ru', 1, 1, 'author'),
+	('a.kuleshov.m@gmail.com', '$2a$08$PjVaxr7RxjrHWpW0laJwcuKISPNPSOxCkbHCxZvHJkQKXsQUHDKA2', 'Admin', 'a.kuleshov.m@gmail.com', 1, 1, 'na4alnik'),
+  ('n91n91@mail.ru', '$2a$08$PjVaxr7RxjrHWpW0laJwcuKISPNPSOxCkbHCxZvHJkQKXsQUHDKA2', 'nastya', 'n91n91@mail.ru', 1, 1, 'info');
 
 -- Index to speed up expiry-based look-ups / sweeps
 

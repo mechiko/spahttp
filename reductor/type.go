@@ -12,7 +12,7 @@ type ModelList map[domain.Model]domain.Modeler
 
 type Reductor struct {
 	mutex        sync.RWMutex
-	loger        *zap.SugaredLogger
+	logger       *zap.SugaredLogger
 	models       ModelList
 	outStateChan chan domain.Model
 }
@@ -27,7 +27,7 @@ func New(logger *zap.SugaredLogger) error {
 	}
 	once.Do(func() {
 		instance = &Reductor{
-			loger:  logger,
+			logger: logger,
 			models: make(ModelList),
 		}
 	})

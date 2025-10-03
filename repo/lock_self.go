@@ -18,7 +18,7 @@ func (r *Repository) LockOther() (*selfdb.DbSelf, error) {
 	mu, ok := r.dbMutex[dbscan.Other]
 	if ok {
 		mu.mutex.Lock()
-		// ensure we don't leak the lock on panic inside a3.New
+		// ensure we don't leak the lock on panic
 		defer func() {
 			if r := recover(); r != nil {
 				mu.mutex.Unlock()
@@ -37,10 +37,12 @@ func (r *Repository) LockOther() (*selfdb.DbSelf, error) {
 }
 
 func (r *Repository) UnlockOther(db *selfdb.DbSelf) (retErr error) {
+	var errClose error
 	if db == nil {
-		return fmt.Errorf("%s unlock db %v is nil", modError, dbscan.Other)
+		errClose = fmt.Errorf("%s unlock db %v is nil", modError, dbscan.Other)
+	} else {
+		errClose = db.Close()
 	}
-	errClose := db.Close()
 	mu, ok := r.dbMutex[db.InfoType()]
 	if ok {
 		defer func() {
