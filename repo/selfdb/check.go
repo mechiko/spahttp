@@ -10,9 +10,19 @@ import (
 	"github.com/upper/db/v4/adapter/sqlite"
 )
 
+// вызывается каждый раз при создании объекта DbSelf
+func (r *DbSelf) Connect() (err error) {
+	r.dbSession, err = r.dbInfo.Connect()
+	if err != nil {
+		r.dbInfo.Exists = false
+		return fmt.Errorf("%s prepareSelf ошибка подключения к БД %w", modError, err)
+	}
+	return nil
+}
+
 // проверка наличия создание и миграция
 // вызывается однажды при старте программы
-func (r *DbSelf) Check() (err error) {
+func (r *DbSelf) CheckCreateAndMigrate() (err error) {
 	defer func() {
 		if rr := recover(); rr != nil {
 			err = fmt.Errorf("%s check panic %v", modError, rr)
@@ -33,7 +43,6 @@ func (r *DbSelf) Check() (err error) {
 			r.dbInfo.Exists = false
 			return fmt.Errorf("%s prepareSelf ошибка подключения к БД %w", modError, err)
 		}
-		return nil
 	}
 
 	db, ok := r.dbSession.Driver().(*sql.DB)

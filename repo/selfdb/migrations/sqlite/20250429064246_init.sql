@@ -4,18 +4,17 @@ SELECT 'up SQL query';
 -- +goose StatementEnd
 -- Create users table
 CREATE TABLE if not exists updates (
-  id integer NOT null,
+  id integer NOT null PRIMARY KEY,
   message    text NOT null default(''),
   sender_id integer NOT null default(0),
   chat_id integer NOT null default(0),
   recepient string NOT null default(''),
   'update'    text NOT null default(''),
-  created TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M','now', 'localtime')),
-  primary key (id)
+  created TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M','now', 'localtime'))
 );
 
 CREATE TABLE if not exists telebotusers (
-  id integer NOT null,
+  id integer NOT null PRIMARY KEY,
   first_name    text NOT null default(''),
   last_name     text NOT null default(''),
   username     text NOT null default(''),
@@ -29,12 +28,11 @@ CREATE TABLE if not exists telebotusers (
   supports_inline  integer NOT null default(0),
   is_admin integer NOT null default(0),
   created TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M','now', 'localtime')),
-  masters text NOT null default(''),
-  primary key (id)
+  masters text NOT null default('')
 );
 
 CREATE TABLE if not exists chats (
-  id integer NOT null,
+  id integer NOT null  PRIMARY KEY,
   type text NOT null default(''),
   title text NOT null default(''),
   first_name    text NOT null default(''),
@@ -54,8 +52,7 @@ CREATE TABLE if not exists chats (
   private          integer NOT null default(0),
   protected        integer NOT null default(0),
   no_voice_and_video  integer NOT null default(0),
-  created TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M','now', 'localtime')),
-  primary key (id)
+  created TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M','now', 'localtime'))
 );
 
 -- активна та которая в боте создана и манипулируется
@@ -64,7 +61,7 @@ CREATE TABLE if not exists chats (
 -- может существовать только одна активная для recepient_id
 -- masters список начальников куда отправлять стату
 CREATE TABLE if not exists missions (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  id INTEGER NOT NULL PRIMARY KEY,
   recepient_id integer NOT null,
   start text NOT null default(''),
   end text NOT null default(''),
@@ -97,17 +94,15 @@ CREATE TABLE if not exists user_states (
 -- где ключ ОТ ППБ ОАЭ_АС_ДИ ФНП ПРБ ЭБ Медосмотр
 -- telephone fio is_admin email
 CREATE TABLE if not exists state_key (
-  key TEXT NOT NULL DEFAULT '',
+  key TEXT NOT NULL DEFAULT '' PRIMARY KEY,
   is_examen integer NOT null default(0),
   is_intro integer NOT null default(0),
-  description TEXT NOT NULL DEFAULT '',
-  PRIMARY KEY (key)
+  description TEXT NOT NULL DEFAULT ''
 );
 
 -- таблица логинов клиентов на всякий пожарный чтобы связь с клиентом была
 CREATE TABLE if not exists users (
-  id INTEGER NOT NULL DEFAULT (0) PRIMARY KEY,
-  login TEXT NOT NULL DEFAULT (''),
+  login TEXT NOT NULL DEFAULT ('') ,
   passwd TEXT DEFAULT(''),
   name TEXT DEFAULT(''),
   email TEXT DEFAULT(''),
@@ -118,7 +113,7 @@ CREATE TABLE if not exists users (
 );
 
 CREATE TABLE if not exists examen_ended (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  id INTEGER NOT NULL PRIMARY KEY,
   user_id INTEGER NOT NULL DEFAULT (0),
   key TEXT NOT NULL DEFAULT '',
   date TEXT NOT NULL DEFAULT '',

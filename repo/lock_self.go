@@ -28,6 +28,7 @@ func (r *Repository) LockOther() (*selfdb.DbSelf, error) {
 	} else {
 		return nil, fmt.Errorf("%s lock not present mutex %v", modError, dbscan.Other)
 	}
+	// создаем только с открытием БД
 	db, err := selfdb.New(info)
 	if err != nil {
 		mu.mutex.Unlock()

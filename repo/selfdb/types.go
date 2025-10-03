@@ -25,10 +25,25 @@ func New(info *dbscan.DbInfo) (*DbSelf, error) {
 		dbInfo:   info,
 		infoType: dbscan.Other,
 	}
+	if err := db.Connect(); err != nil {
+		return nil, fmt.Errorf("%s error check %w", modError, err)
+	}
+	return db, nil
+}
+
+// при первом запуске программы проверяет наличие создает пустую и миграция
+func NewOnceOnStart(info *dbscan.DbInfo) (*DbSelf, error) {
+	if info == nil {
+		return nil, fmt.Errorf("%s dbinfo is nil", modError)
+	}
+	db := &DbSelf{
+		dbInfo:   info,
+		infoType: dbscan.Other,
+	}
 	// передаем флаг о необходимости создания, это при запуске приложения из repo
 	// проверяем, если нет создаем, если надо мигрируем
 	// открываем сесиию в этом методе если нет ошибки
-	if err := db.Check(); err != nil {
+	if err := db.CheckCreateAndMigrate(); err != nil {
 		return nil, fmt.Errorf("%s error check %w", modError, err)
 	}
 	return db, nil
