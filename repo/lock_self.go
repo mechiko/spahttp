@@ -43,7 +43,7 @@ func (r *Repository) UnlockOther(db *selfdb.DbSelf) (retErr error) {
 	} else {
 		errClose = db.Close()
 	}
-	mu, ok := r.dbMutex[db.InfoType()]
+	mu, ok := r.dbMutex[dbscan.Other]
 	if ok {
 		defer func() {
 			if rec := recover(); rec != nil {

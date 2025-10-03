@@ -2,9 +2,9 @@
 # set positional-arguments
 shebang := 'pwsh.exe'
 # Variables
-exe_name := "4zupper"
-mod_name := "zupper"
-ld_flags :="-H=windowsgui -s -w -X spahttp/entity.Mode=production"
+exe_name := "spahttp"
+mod_name := "spahttp"
+ld_flags :="-s -w -X spahttp/entity.Mode=production"
 dist := ".dist"
 
 default:
@@ -19,7 +19,7 @@ win64:
     if (-Not (Test-Path go.mod)) {
       go mod init {{mod_name}}
     }
-    go mod tidy -go 1.24 -v
+    go mod tidy -go 1.24.0 -v
     if(-Not $?) { exit }
     if (-Not (Test-Path "{{dist}}")) { New-Item -ItemType Directory -Force -Path "{{dist}}" | Out-Null }
     Remove-Item -Force -ErrorAction SilentlyContinue -LiteralPath "{{dist}}\{{exe_name}}.exe","{{dist}}\{{exe_name}}_64.exe"

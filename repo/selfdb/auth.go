@@ -1,7 +1,6 @@
 package selfdb
 
 import (
-	"errors"
 	"fmt"
 	"spahttp/repo/selfdb/models"
 
@@ -21,18 +20,9 @@ func (c *DbSelf) Authenticate(email, password string) (user *models.User, err er
 		return nil, fmt.Errorf("error looking up user: %w", err)
 	}
 
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), 8)
-	savedPassword := []byte(user.Passwd)
-	fmt.Println(string(hashedPassword))
-	fmt.Println(user.Passwd)
-	fmt.Println(savedPassword)
 	err = bcrypt.CompareHashAndPassword([]byte(user.Passwd), []byte(password))
 	if err != nil {
-		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-			return nil, fmt.Errorf("error looking up user: %w", err)
-		} else {
-			return nil, err
-		}
+		return nil, fmt.Errorf("authentication failed: %w", err)
 	}
 
 	return user, nil

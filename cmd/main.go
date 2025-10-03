@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"spahttp/app"
 	"spahttp/checkdbg"
@@ -15,9 +16,10 @@ import (
 	"spahttp/repo"
 	"spahttp/spaserver"
 	"spahttp/zaplog"
+	"syscall"
 
+	"github.com/containers/winquit/pkg/winquit"
 	"github.com/mechiko/dbscan"
-
 	"golang.org/x/sync/errgroup"
 )
 
@@ -48,8 +50,14 @@ func init() {
 func main() {
 	flag.Parse()
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	// ctx, cancel := context.WithCancel(context.Background())
+	// defer cancel()
+
+	done := make(chan bool, 1)
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	// ctx := context.Background()
 
 	group, groupCtx := errgroup.WithContext(ctx)
 
@@ -78,6 +86,15 @@ func main() {
 	if cfg.Warning() != "" {
 		loger.Infof("pkg:config warning %s", cfg.Warning())
 	}
+
+	group.Go(func() error {
+		go func() {
+			defer stop()
+			<-done
+			loger.Info("получен сигнал winquit.NotifyOnQuit завершения работы")
+		}()
+		return nil
+	})
 
 	// используем инлайн функцию для захвата loger
 	errProcessExit := func(title string, err error) {
@@ -134,14 +151,14 @@ func main() {
 	// тесты
 	checker, err := checkdbg.NewChecks(loger, repoStart)
 	if err != nil {
-		cancel()
+		stop()
 		// Wait for cleanup to complete
 		group.Wait()
 		errProcessExit("Check failed", err)
 	}
 	err = checker.Run()
 	if err != nil {
-		cancel()
+		stop()
 		// Wait for cleanup to complete
 		group.Wait()
 		errProcessExit("Check failed", err)
@@ -186,6 +203,9 @@ func main() {
 
 	// только в винде откроет брауезер на индекс сайта
 	openUrl(app)
+
+	// Simulate SIGTERM when a quit occurs
+	winquit.NotifyOnQuit(done)
 
 	// ожидание завершения всех в группе
 	if err := group.Wait(); err != nil {
