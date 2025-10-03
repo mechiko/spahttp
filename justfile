@@ -4,7 +4,7 @@ shebang := 'pwsh.exe'
 # Variables
 exe_name := "spahttp"
 mod_name := "spahttp"
-ld_flags :="-s -w -X spahttp/entity.Mode=production"
+ld_flags :="-s -w -X spahttp/config.Mode=production"
 dist := ".dist"
 
 default:

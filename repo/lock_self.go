@@ -52,7 +52,7 @@ func (r *Repository) UnlockOther(db *selfdb.DbSelf) (retErr error) {
 		}()
 		mu.mutex.Unlock()
 	} else {
-		errUnlock := fmt.Errorf("%s unlock not present mutex %v", modError, db.InfoType())
+		errUnlock := fmt.Errorf("%s unlock not present mutex %v", modError, dbscan.Other)
 		return errors.Join(errClose, errUnlock)
 	}
 	return errors.Join(retErr, errClose)
