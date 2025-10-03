@@ -6,7 +6,7 @@ ALTER TABLE users RENAME TO users_old;
 
 -- 2. Create a new table with the desired column type
 CREATE TABLE users (
-  id INTEGER NOT NULL DEFAULT (0) PRIMARY KEY,
+  id INTEGER NOT NULL PRIMARY KEY,
   login TEXT NOT NULL DEFAULT (''),
   passwd TEXT DEFAULT(''),
   name TEXT DEFAULT(''),
