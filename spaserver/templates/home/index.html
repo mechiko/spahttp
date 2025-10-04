@@ -1,4 +1,4 @@
-<html data-theme="lofi">
+<html>
 <head>
   <meta charset="UTF-8" />
       <!--
@@ -19,21 +19,16 @@
           ]
       }'
   />
-  <title></title>
+  <title>{{$.Title}}</title>
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png"/>
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png"/>
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png"/>
   <link rel="manifest" href="/assets/favicon/site.webmanifest"/>
   <link rel="stylesheet" type="text/css" href="/assets/css/roboto.css">
   <link rel="stylesheet" type="text/css" href="/assets/css/roboto_condenced.css">
-  <!-- эти темы и библиотека daisyui очень тяжелые пока обхожусь чистым tailwind -->
-  <!-- <link rel="stylesheet" type="text/css" href="/assets/css/daisyui.full.min.css">
-  <link rel="stylesheet" type="text/css" href="/assets/css/themes.css" /> -->
-  <!-- <link rel="stylesheet" type="text/css" href="/assets/css/xp.css"> -->
   <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
   <link rel="stylesheet" type="text/css" href="/assets/css/modal.css">
   <link rel="stylesheet" type="text/css" href="/assets/css/modal_json.css">
-  <!-- <link rel="stylesheet" type="text/css" href="/assets/css/highlight.min.css"> -->
   <script src="/assets/js/tailwind.js"></script>
   <!-- порядок hyperscript и htmx важен  -->
   <script src="/assets/js/hyperscript.min.js"></script>
@@ -61,8 +56,8 @@
         <!-- когда срабатывает тут отображается сообщение errormsg -->
         <div id="alert" class="pl-4 hidden"></div>
         <div id="sse_error"></div>
-        <!-- сюда загружается страница по умолчанию при старте, при обновлении здесь текущая страница spaserver.activePage -->
-        <div id="app" hx-get="/page" hx-trigger="load" hx-target="#app" hx-swap="innerHTML" class="m-2"></div>
+        <!-- сюда index page -->
+        {{ template "indexpage" . }}
       </main>
       <footer>
         <div id="footer" hx-get="/footer" hx-trigger="load" hx-target="#footer" hx-swap="outerHTML"></div>
@@ -76,34 +71,35 @@
     });
   </script>  
   <script>
+    function setupEventSource(stream, handler) {
+      if (typeof(EventSource) === "undefined") {
+        console.warn("SSE unsupported in this browser");
+        return;
+      }
+      const source = new EventSource(`/sse?stream=${stream}`);
+      console.log(`EventSource(/sse/${stream})`);
+      source.onmessage = handler;
+      return source;
+    }
+
     // Example taken from: https://www.w3schools.com/html/html5_serversentevents.asp
     // sse подключение и обновление по событиям
-    if (typeof (EventSource) !== "undefined") {
-      const source = new EventSource("http://127.0.0.1:8888/sse?stream=error");
-      console.log("EventSource(/sse/error)")
-      source.onmessage = function (event) {
-        console.log("sse error: ", event)
-        Swal.fire({
-          title: "Ошибка",
-          html: event.data,
-        });
-      };
-    } else {
-      document.getElementById("result").innerHTML = "Sorry, your browser does not support server-sent events...";
-    }
-    if (typeof (EventSource) !== "undefined") {
-      const source = new EventSource("http://127.0.0.1:8888/sse?stream=info");
-      console.log("EventSource(/sse/info)")
-      source.onmessage = function (event) {
-        console.log("sse info: ", event)
-        Swal.fire({
-          html: event.data,
-          icon: "info",
-        });
-      };
-    } else {
-      document.getElementById("result").innerHTML = "Sorry, your browser does not support server-sent events...";
-    }
+    setupEventSource("error", function(event) {
+      console.log("sse error: ", event);
+      Swal.fire({
+        title: "Ошибка",
+        html: event.data,
+      });
+    });
+
+    setupEventSource("info", function(event) {
+      console.log("sse info: ", event);
+      Swal.fire({
+        html: event.data,
+        icon: "info",
+      });
+    });
+ 
     document.body.addEventListener("showMessage", function(evt){
       console.log('event ', evt);
       Swal.fire({
