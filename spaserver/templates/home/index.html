@@ -70,13 +70,15 @@
   <script>
     window.onload = function() {
       let element = document.getElementById("alert");
-      console.log("onload id alert element:", element.innerHTML);
-      if ((element) && (element.innerHTML != "")) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Ошибка!',
-          text: 'Произошла ошибка: ' + element.innerHTML // Or parse JSON response
-        });
+      console.log("load alert! ", element)
+      if (element){
+        if (element.innerHTML != "") {
+          Swal.fire({
+            icon: 'error',
+            title: 'Ошибка!',
+            html: 'Произошла ошибка: ' + element.innerHTML
+          });
+        }
       }
     };
   </script>
@@ -84,13 +86,15 @@
     // этот обработчик ловит ошибки от вложенных запросов htmx
     document.body.addEventListener('alert', function(event) {
       let element = document.getElementById("alert");
-      console.log("id alert element:", element);
-      if ((element) && (element.innerHTML != "")) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Ошибка!',
-          text: 'Произошла ошибка: ' + xhr.responseText // Or parse JSON response
-        });
+      console.log("event alert! ", element)
+      if (element){
+        if (element.innerHTML != "") {
+          Swal.fire({
+            icon: 'error',
+            title: 'Ошибка!',
+            html: 'Произошла ошибка: ' + element.innerHTML
+          });
+        }
       }
     });
   </script>
@@ -104,6 +108,19 @@
           title: 'Ошибка!',
           text: 'Произошла ошибка: ' + xhr.responseText // Or parse JSON response
         });
+      } else {
+      let element = document.getElementById("alert");
+      console.log("after request alert! ", element)
+      if (element){
+        if (element.innerHTML != "") {
+          Swal.fire({
+            icon: 'error',
+            title: 'Ошибка!',
+            html: 'Произошла ошибка: ' + element.innerHTML
+          });
+        }
+      }
+
       }
     });
   </script>

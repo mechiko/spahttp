@@ -34,7 +34,10 @@ func (s *Server) Render(w io.Writer, name string, data interface{}, c echo.Conte
 			err = fmt.Errorf("panic %v", r)
 		}
 	}()
-
+	// всегда ставим такой заголовок на случай если есть в выводе div id=alert
+	// если несколько запросов htmx обновляется то триггер алерт не срабатывает
+	// так он срабатывает всегда после всей загрузки
+	c.Response().Header().Set("HX-Trigger", "alert")
 	return s.renderToWriter(w, name, data)
 }
 

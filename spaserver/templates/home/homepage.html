@@ -1,0 +1,10 @@
+<div id="homepage" class="mt-6 text-base">
+  {{ if $.Errors }}
+  <div id="alert" class="hidden">
+  {{ range $j, $row := $.Errors }}
+    {{$row}}
+  {{ end }}
+  </div>
+  {{ end }}
+  HomePage
+</div>

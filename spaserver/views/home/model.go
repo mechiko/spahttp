@@ -18,7 +18,7 @@ func NewModel(app domain.Apper) (*HomeModel, error) {
 	model := &HomeModel{
 		Title:  "Домашка",
 		model:  domain.Home,
-		errors: make([]error, 0),
+		// errors: make([]error, 0),
 	}
 	if err := model.ReadState(app); err != nil {
 		return nil, fmt.Errorf("model prodtools read state %w", err)
@@ -38,9 +38,7 @@ func (m *HomeModel) ReadState(app domain.Apper) (err error) {
 
 func (a *HomeModel) Copy() (domain.Modeler, error) {
 	dst := *a
-	if a.errors != nil {
-		dst.errors = append([]error(nil), a.errors...)
-	}
+	dst.errors = nil
 	return &dst, nil
 }
 
