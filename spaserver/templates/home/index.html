@@ -53,9 +53,6 @@
             <img class="" src="/assets/images/bars.svg" alt="loading" style="width: 36px; height: 24px">
           </div>
         </div>
-        <!-- когда срабатывает тут отображается сообщение errormsg -->
-        <div id="alert" class="pl-4 hidden"></div>
-        <div id="sse_error"></div>
         <!-- сюда index page -->
         {{ template "indexpage" . }}
       </main>
@@ -71,42 +68,44 @@
     });
   </script>  
   <script>
-    function setupEventSource(stream, handler) {
-      if (typeof(EventSource) === "undefined") {
-        console.warn("SSE unsupported in this browser");
-        return;
-      }
-      const source = new EventSource(`/sse?stream=${stream}`);
-      console.log(`EventSource(/sse/${stream})`);
-      source.onmessage = handler;
-      return source;
-    }
-
-    // Example taken from: https://www.w3schools.com/html/html5_serversentevents.asp
-    // sse подключение и обновление по событиям
-    setupEventSource("error", function(event) {
-      console.log("sse error: ", event);
-      Swal.fire({
-        title: "Ошибка",
-        html: event.data,
-      });
-    });
-
-    setupEventSource("info", function(event) {
-      console.log("sse info: ", event);
-      Swal.fire({
-        html: event.data,
-        icon: "info",
-      });
-    });
- 
-    document.body.addEventListener("showMessage", function(evt){
-      console.log('event ', evt);
-      Swal.fire({
-          icon: evt.detail.level,
-          html: evt.detail.message,
+    window.onload = function() {
+      let element = document.getElementById("alert");
+      console.log("onload id alert element:", element.innerHTML);
+      if ((element) && (element.innerHTML != "")) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Ошибка!',
+          text: 'Произошла ошибка: ' + element.innerHTML // Or parse JSON response
         });
-    })
+      }
+    };
+  </script>
+  <script>
+    // этот обработчик ловит ошибки от вложенных запросов htmx
+    document.body.addEventListener('alert', function(event) {
+      let element = document.getElementById("alert");
+      console.log("id alert element:", element);
+      if ((element) && (element.innerHTML != "")) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Ошибка!',
+          text: 'Произошла ошибка: ' + xhr.responseText // Or parse JSON response
+        });
+      }
+    });
+  </script>
+  <script>
+    // этот обработчик ловит ошибки от вложенных запросов htmx
+    document.body.addEventListener('htmx:afterRequest', function(event) {
+      const xhr = event.detail.xhr;
+      if (xhr.status >= 400) { // Check for error status codes
+        Swal.fire({
+          icon: 'error',
+          title: 'Ошибка!',
+          text: 'Произошла ошибка: ' + xhr.responseText // Or parse JSON response
+        });
+      }
+    });
   </script>
 </body>
 </html>
