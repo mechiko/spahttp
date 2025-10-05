@@ -37,7 +37,7 @@ var encoderConfig = zapcore.EncoderConfig{
 	EncodeCaller:   zapcore.ShortCallerEncoder,
 }
 
-func createLogger(output []string, debug bool) (*zap.Logger, error) {
+func createLogger(output []string, debug bool, console bool) (*zap.Logger, error) {
 	level := zap.InfoLevel
 	if debug {
 		level = zap.DebugLevel
@@ -45,6 +45,7 @@ func createLogger(output []string, debug bool) (*zap.Logger, error) {
 	if len(output) == 0 {
 		output = []string{"stderr"}
 	}
+
 	config := zap.Config{
 		Level:             zap.NewAtomicLevelAt(level),
 		Development:       debug,
@@ -56,6 +57,10 @@ func createLogger(output []string, debug bool) (*zap.Logger, error) {
 		OutputPaths:       output,
 		ErrorOutputPaths:  []string{"stderr"},
 	}
+	if !console {
+		config.Encoding = "json"
+	}
+
 	if !debug {
 		config.Sampling = &zap.SamplingConfig{Initial: 100, Thereafter: 100}
 	}

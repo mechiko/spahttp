@@ -108,19 +108,6 @@
           title: 'Ошибка!',
           text: 'Произошла ошибка: ' + xhr.responseText // Or parse JSON response
         });
-      } else {
-      let element = document.getElementById("alert");
-      console.log("after request alert! ", element)
-      if (element){
-        if (element.innerHTML != "") {
-          Swal.fire({
-            icon: 'error',
-            title: 'Ошибка!',
-            html: 'Произошла ошибка: ' + element.innerHTML
-          });
-        }
-      }
-
       }
     });
   </script>

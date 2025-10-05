@@ -71,7 +71,7 @@ func main() {
 		"echo":     {filepath.Join(cfg.LogPath(), "echo")},
 		"reductor": {filepath.Join(cfg.LogPath(), "reductor")},
 	}
-	zl, err := zaplog.New(logsOutConfig, true)
+	zl, err := zaplog.New(logsOutConfig, true, false)
 	if err != nil {
 		errMessageExit(nil, "ошибка создания логера", err)
 	}
