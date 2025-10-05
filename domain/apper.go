@@ -15,4 +15,5 @@ type Apper interface {
 	DbPath() string
 	LogPath() string
 	BaseUrl() string
+	Debug() bool
 }
