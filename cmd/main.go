@@ -66,30 +66,26 @@ func main() {
 	if err != nil {
 		errMessageExit(nil, "ошибка конфигурации", err)
 	}
-	debug := false
-	if strings.ToLower(config.Mode) == "development" {
-		debug = true
-	}
 
 	var logsOutConfig = map[string]zaplog.LogConfig{
 		"logger": {
 			ErrorOutputPaths: []string{"stdout", filepath.Join(cfg.LogPath(), config.Name)},
-			Debug:            debug,
+			Debug:            strings.ToLower(config.Mode) == "development",
 			Console:          true,
 		},
 		"echo": {
 			ErrorOutputPaths: []string{filepath.Join(cfg.LogPath(), "echo")},
-			Debug:            debug,
+			Debug:            strings.ToLower(config.Mode) == "development",
 			Console:          false,
 		},
 		"reductor": {
 			ErrorOutputPaths: []string{filepath.Join(cfg.LogPath(), "reductor")},
-			Debug:            debug,
+			Debug:            strings.ToLower(config.Mode) == "development",
 			Console:          true,
 		},
 	}
 
-	zl, err := zaplog.New(logsOutConfig, debug, false)
+	zl, err := zaplog.New(logsOutConfig)
 	if err != nil {
 		errMessageExit(nil, "ошибка создания логера", err)
 	}

@@ -3,9 +3,11 @@ package home
 import (
 	"fmt"
 	"spahttp/domain"
+	"spahttp/spaserver/views"
 )
 
 type HomeModel struct {
+	views.Secure
 	Title  string
 	model  domain.Model
 	errors []error
@@ -16,8 +18,8 @@ var _ domain.Modeler = (*HomeModel)(nil)
 // создаем модель считываем ее состояние и возвращаем указатель
 func NewModel(app domain.Apper) (*HomeModel, error) {
 	model := &HomeModel{
-		Title:  "Домашка",
-		model:  domain.Home,
+		Title: "Домашка",
+		model: domain.Home,
 		// errors: make([]error, 0),
 	}
 	if err := model.ReadState(app); err != nil {

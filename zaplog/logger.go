@@ -49,7 +49,7 @@ func (z *ZapLog) Shutdown() {
 //			Console:          true,
 //		},
 //	}
-func New(outConfig map[string]LogConfig, debug bool, console bool) (*ZapLog, error) {
+func New(outConfig map[string]LogConfig) (*ZapLog, error) {
 	// проверяем мапу настройки логов
 	for key := range outConfig {
 		if !isValidLogName(key) {
@@ -59,7 +59,7 @@ func New(outConfig map[string]LogConfig, debug bool, console bool) (*ZapLog, err
 	z := &ZapLog{
 		logs: make(map[LogName]*zap.Logger),
 	}
-	err := z.init(outConfig, debug, console)
+	err := z.init(outConfig)
 	if err != nil {
 		return nil, fmt.Errorf("init zap logger %v", err)
 	}
@@ -74,7 +74,7 @@ func (z *ZapLog) Run(ctx context.Context) error {
 	return nil
 }
 
-func (z *ZapLog) init(outConfig map[string]LogConfig, debug bool, console bool) (err error) {
+func (z *ZapLog) init(outConfig map[string]LogConfig) (err error) {
 	for key, output := range outConfig {
 		if isValidLogName(key) {
 			lg, err := createLogger(output.ErrorOutputPaths, output.Debug, output.Console)
