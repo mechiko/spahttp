@@ -42,6 +42,7 @@ func (t *page) Logout(c echo.Context) error {
 	}
 	// Remove authenticated user id
 	t.SessionManager().Remove(c.Request().Context(), "authenticatedUserID")
+	t.SessionManager().Remove(c.Request().Context(), "authenticatedUsername")
 	return c.Redirect(http.StatusSeeOther, "/")
 }
 
