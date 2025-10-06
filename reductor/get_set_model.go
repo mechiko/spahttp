@@ -23,7 +23,18 @@ func (rdc *Reductor) Model(page domain.Model) (interface{}, error) {
 		if v := reflect.ValueOf(pageModel); v.Kind() == reflect.Ptr && v.IsNil() {
 			return nil, fmt.Errorf("reductor internal error: model pointer is nil for page %s", page)
 		}
-		return pageModel, nil
+		outModel, err := pageModel.Copy()
+		if err != nil {
+			return nil, fmt.Errorf("reductor: само копирования модели %w", err)
+		}
+		if !utility.IsPointer(outModel) {
+			return nil, fmt.Errorf("reductor: model copy must be a pointer")
+		}
+		// also guard typed-nil copies
+		if v := reflect.ValueOf(outModel); v.Kind() == reflect.Ptr && v.IsNil() {
+			return nil, fmt.Errorf("reductor: model copy pointer is nil")
+		}
+		return outModel, nil
 	}
 	return nil, fmt.Errorf("reductor запрошенной модели нет")
 }

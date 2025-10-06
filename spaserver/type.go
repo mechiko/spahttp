@@ -9,12 +9,10 @@ import (
 	"spahttp/embedded"
 	"spahttp/spaserver/middleware"
 	"spahttp/spaserver/session"
-	"spahttp/spaserver/sse"
 	"spahttp/spaserver/templates"
 	"spahttp/spaserver/views"
 	"spahttp/zaplog/zap4echo"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/alexedwards/scs/v2"
@@ -45,12 +43,7 @@ type Server struct {
 	menu            []domain.Model
 	activePage      domain.Model
 	defaultPage     string
-	flush           *FlushMsg
-	flushMu         sync.RWMutex
 	htmx            *htmx.HTMX
-	sseManager      *sse.Server
-	streamError     *sse.Stream
-	streamInfo      *sse.Stream
 	protected       *echo.Group // для защищенной области роутинга
 	// dynamic         *echo.Group // для открытой области роутинга в данной реализации это только /login /sse
 }
@@ -72,12 +65,14 @@ func New(a domain.Apper, zl *zap.Logger, port string, debug bool) (ss *Server, e
 		zap4echo.Recover(zl),
 	)
 	e.Use(emiddle.CORSWithConfig(emiddle.CORSConfig{
-		AllowOrigins:     []string{"*"},
-		AllowHeaders:     []string{"authorization", "Content-Type"},
+		AllowOrigins: []string{"*"},
+		// AllowHeaders:     []string{"authorization", "Content-Type"},
+		AllowHeaders:     []string{echo.HeaderContentType, echo.HeaderAuthorization, echo.HeaderXCSRFToken},
 		AllowCredentials: true,
-		AllowMethods:     []string{echo.OPTIONS, echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
+		AllowMethods:     []string{http.MethodGet, http.MethodPost},
+		// AllowMethods:     []string{echo.OPTIONS, echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
 	}))
-
+	// https://www.compilenrun.com/docs/framework/echo/echo-middleware/echo-security-middleware
 	e.Use(emiddle.StaticWithConfig(emiddle.StaticConfig{
 		Skipper:    func(c echo.Context) bool { return c.Path() == "/" },
 		HTML5:      true,
@@ -91,6 +86,41 @@ func New(a domain.Apper, zl *zap.Logger, port string, debug bool) (ss *Server, e
 		ContentTypeNosniff: "nosniff",
 		XFrameOptions:      "DENY",
 		ReferrerPolicy:     "no-referrer",
+	}))
+
+	// More customized rate limiting
+	e.Use(emiddle.RateLimiterWithConfig(emiddle.RateLimiterConfig{
+		Skipper: emiddle.DefaultSkipper,
+		Store: emiddle.NewRateLimiterMemoryStoreWithConfig(
+			emiddle.RateLimiterMemoryStoreConfig{
+				Rate:      10,              // 10 requests per time unit
+				Burst:     30,              // Allow bursts of up to 30 requests
+				ExpiresIn: 1 * time.Minute, // Time unit (1 minute)
+			},
+		),
+		IdentifierExtractor: func(c echo.Context) (string, error) {
+			// Use IP address as identifier
+			return c.RealIP(), nil
+		},
+		ErrorHandler: func(c echo.Context, err error) error {
+			return c.JSON(http.StatusTooManyRequests, map[string]string{
+				"message": "Too many requests, please try again later.",
+			})
+		},
+		DenyHandler: func(c echo.Context, identifier string, err error) error {
+			return c.JSON(http.StatusTooManyRequests, map[string]string{
+				"message": "Rate limit exceeded.",
+			})
+		},
+	}))
+
+	e.Use(emiddle.CSRFWithConfig(emiddle.CSRFConfig{
+		// TokenLookup:    "form:_csrf",
+		TokenLookup:    "header:X-CSRF-Token,form:_csrf",
+		CookieName:     "_csrf",
+		CookieMaxAge:   3600,
+		CookieSecure:   true,
+		CookieHTTPOnly: true,
 	}))
 
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -122,14 +152,18 @@ func New(a domain.Apper, zl *zap.Logger, port string, debug bool) (ss *Server, e
 	if ss.templates, err = templates.New(ss); err != nil {
 		return nil, fmt.Errorf("spaserver templates error %w", err)
 	}
-	ss.sseManager = sse.New()
-	ss.streamError = ss.sseManager.CreateStream("error")
-	ss.streamInfo = ss.sseManager.CreateStream("info")
 	mdl := middleware.NewMiddleware(ss)
-	ss.protected = e.Group("site", session.LoadAndSave(ss.sessionManager, ss.Logger()), mdl.Authenticate, mdl.RedirectAuthenticatedUsers, mdl.LoginRequired)
-	// ss.protected = e.Group("site", session.LoadAndSave(ss.sessionManager))
-	e.Use(session.LoadAndSave(ss.sessionManager, ss.Logger()), mdl.Authenticate, mdl.RedirectAuthenticatedUsers)
-	// e.Use(session.LoadAndSave(ss.sessionManager))
+	e.Use(mdl.Authenticate, mdl.RedirectAuthenticatedUsers)
+	// append to (session.LoadAndSave(ss.sessionManager, ss.Logger()), mdl.Authenticate, mdl.RedirectAuthenticatedUsers)
+	ss.protected = e.Group("site", mdl.LoginRequired)
+	ss.protected.Use(emiddle.CORSWithConfig(emiddle.CORSConfig{
+		AllowOrigins: []string{"*"},
+		// AllowHeaders:     []string{"authorization", "Content-Type"},
+		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete},
+		AllowHeaders:     []string{echo.HeaderContentType, echo.HeaderAuthorization},
+		AllowCredentials: true,
+		MaxAge:           3600,
+	}))
 	if err := ss.Routes(); err != nil {
 		return nil, fmt.Errorf("spaserver new routes error %w", err)
 	}
@@ -183,12 +217,6 @@ func (s *Server) Views() map[domain.Model]views.IView {
 }
 
 func (s *Server) Reload() {
-	if s.streamError != nil && s.streamError.Eventlog != nil {
-		s.streamError.Eventlog.Clear()
-	}
-	if s.streamInfo != nil && s.streamInfo.Eventlog != nil {
-		s.streamInfo.Eventlog.Clear()
-	}
 }
 
 func (s *Server) Htmx() *htmx.HTMX {

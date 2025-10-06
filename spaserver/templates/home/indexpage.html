@@ -2,6 +2,7 @@
   {{ template "navbar" . }}
   <div class="w-full">
   {{ template "page" . }}
+  <div hx-get="/site/homepage" hx-trigger="load" hx-target="this" hx-swap="outerHTML"></div>
   </div>
   {{ template "footer" . }}
 </div>

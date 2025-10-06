@@ -3,9 +3,11 @@ package login
 import (
 	"fmt"
 	"spahttp/domain"
+	"spahttp/spaserver/views"
 )
 
 type LoginModel struct {
+	views.Secure
 	Title  string
 	model  domain.Model
 	errors []error

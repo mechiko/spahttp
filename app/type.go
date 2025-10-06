@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"net/url"
+	"strings"
 
 	"spahttp/config"
 	"spahttp/domain"
@@ -165,4 +166,12 @@ func (a *app) BaseUrl() string {
 		u.Host = host
 	}
 	return u.String()
+}
+
+func (a *app) Debug() bool {
+	mode := strings.ToLower(config.Mode)
+	if mode == "development" {
+		return true
+	}
+	return false
 }

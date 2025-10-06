@@ -16,6 +16,7 @@ import (
 	"spahttp/repo"
 	"spahttp/spaserver"
 	"spahttp/zaplog"
+	"strings"
 	"syscall"
 
 	"github.com/containers/winquit/pkg/winquit"
@@ -66,12 +67,26 @@ func main() {
 		errMessageExit(nil, "ошибка конфигурации", err)
 	}
 
-	var logsOutConfig = map[string][]string{
-		"logger":   {"stdout", filepath.Join(cfg.LogPath(), config.Name)},
-		"echo":     {filepath.Join(cfg.LogPath(), "echo")},
-		"reductor": {filepath.Join(cfg.LogPath(), "reductor")},
+	debug := strings.ToLower(config.Mode) == "development"
+	var logsOutConfig = map[string]zaplog.LogConfig{
+		"logger": {
+			ErrorOutputPaths: []string{"stdout", filepath.Join(cfg.LogPath(), config.Name)},
+			Debug:            debug,
+			Console:          true,
+		},
+		"echo": {
+			ErrorOutputPaths: []string{filepath.Join(cfg.LogPath(), "echo")},
+			Debug:            debug,
+			Console:          false,
+		},
+		"reductor": {
+			ErrorOutputPaths: []string{filepath.Join(cfg.LogPath(), "reductor")},
+			Debug:            debug,
+			Console:          true,
+		},
 	}
-	zl, err := zaplog.New(logsOutConfig, true)
+
+	zl, err := zaplog.New(logsOutConfig)
 	if err != nil {
 		errMessageExit(nil, "ошибка создания логера", err)
 	}

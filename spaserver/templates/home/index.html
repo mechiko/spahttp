@@ -44,7 +44,7 @@
     ">
   <div class="grid grid-rows-[auto_1fr_auto] h-full">
       <header class="">
-        <div id="header" hx-get="/header" hx-trigger="load" hx-target="#header" hx-swap="outerHTML"></div>
+        <div id="header" hx-get="/site/header" hx-trigger="load" hx-target="#header" hx-swap="outerHTML"></div>
       </header>
       <main class="h-full bg-slate-50 overflow-scroll">
         <!-- индикатор загрузки действия запроса -->
@@ -53,14 +53,11 @@
             <img class="" src="/assets/images/bars.svg" alt="loading" style="width: 36px; height: 24px">
           </div>
         </div>
-        <!-- когда срабатывает тут отображается сообщение errormsg -->
-        <div id="alert" class="pl-4 hidden"></div>
-        <div id="sse_error"></div>
         <!-- сюда index page -->
         {{ template "indexpage" . }}
       </main>
       <footer>
-        <div id="footer" hx-get="/footer" hx-trigger="load" hx-target="#footer" hx-swap="outerHTML"></div>
+        <div id="footer" hx-get="/site/footer" hx-trigger="load" hx-target="#footer" hx-swap="outerHTML"></div>
       </footer>
   </div>
 
@@ -71,42 +68,46 @@
     });
   </script>  
   <script>
-    function setupEventSource(stream, handler) {
-      if (typeof(EventSource) === "undefined") {
-        console.warn("SSE unsupported in this browser");
-        return;
+    window.onload = function() {
+      let element = document.getElementById("alert");
+      if (element){
+        if (element.innerHTML != "") {
+          Swal.fire({
+            icon: 'error',
+            title: 'Ошибка!',
+            html: 'Произошла ошибка: ' + element.innerHTML
+          });
+        }
       }
-      const source = new EventSource(`/sse?stream=${stream}`);
-      console.log(`EventSource(/sse/${stream})`);
-      source.onmessage = handler;
-      return source;
-    }
-
-    // Example taken from: https://www.w3schools.com/html/html5_serversentevents.asp
-    // sse подключение и обновление по событиям
-    setupEventSource("error", function(event) {
-      console.log("sse error: ", event);
-      Swal.fire({
-        title: "Ошибка",
-        html: event.data,
-      });
+    };
+  </script>
+  <script>
+    // этот обработчик ловит ошибки от вложенных запросов htmx
+    document.body.addEventListener('alert', function(event) {
+      let element = document.getElementById("alert");
+      if (element){
+        if (element.innerHTML != "") {
+          Swal.fire({
+            icon: 'error',
+            title: 'Ошибка!',
+            html: 'Произошла ошибка: ' + element.innerHTML
+          });
+        }
+      }
     });
-
-    setupEventSource("info", function(event) {
-      console.log("sse info: ", event);
-      Swal.fire({
-        html: event.data,
-        icon: "info",
-      });
-    });
- 
-    document.body.addEventListener("showMessage", function(evt){
-      console.log('event ', evt);
-      Swal.fire({
-          icon: evt.detail.level,
-          html: evt.detail.message,
+  </script>
+  <script>
+    // этот обработчик ловит ошибки от вложенных запросов htmx
+    document.body.addEventListener('htmx:afterRequest', function(event) {
+      const xhr = event.detail.xhr;
+      if (xhr.status >= 400) { // Check for error status codes
+        Swal.fire({
+          icon: 'error',
+          title: 'Ошибка!',
+          text: 'Произошла ошибка: ' + xhr.responseText // Or parse JSON response
         });
-    })
+      }
+    });
   </script>
 </body>
 </html>

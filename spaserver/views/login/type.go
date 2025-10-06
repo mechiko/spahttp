@@ -14,7 +14,6 @@ type IServer interface {
 	Echo() *echo.Echo
 	ServerError(c echo.Context, err error) error
 	SetActivePage(domain.Model)
-	SetFlush(string, string)
 	RenderString(name string, data interface{}) (str string, err error)
 	Htmx() *htmx.HTMX
 	SessionManager() *scs.SessionManager

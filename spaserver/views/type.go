@@ -23,3 +23,7 @@ type IView interface {
 	Svg() string
 	Desc() string
 }
+
+type Secure struct {
+	Csrf string
+}
