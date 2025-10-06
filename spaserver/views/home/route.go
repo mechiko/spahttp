@@ -21,7 +21,11 @@ func (t *page) Index(c echo.Context) error {
 		// return t.ServerError(c, err)
 		data.errors = append(data.errors, err)
 	}
-	data.Csrf = c.Get(middleware.DefaultCSRFConfig.ContextKey).(string)
+	csrf, ok := c.Get(middleware.DefaultCSRFConfig.ContextKey).(string)
+	if !ok {
+		return t.ServerError(c, fmt.Errorf("CSRF token not found in context"))
+	}
+	data.Csrf = csrf
 	if err := c.Render(http.StatusOK, t.Name(), t.RenderPageModel("index", data)); err != nil {
 		return t.ServerError(c, err)
 	}
@@ -33,7 +37,11 @@ func (t *page) HomePage(c echo.Context) error {
 	if err != nil {
 		data.errors = append(data.errors, err)
 	}
-	data.errors = append(data.errors, fmt.Errorf("ошибочка вышлась проверка ..."))
+	csrf, ok := c.Get(middleware.DefaultCSRFConfig.ContextKey).(string)
+	if !ok {
+		return t.ServerError(c, fmt.Errorf("CSRF token not found in context"))
+	}
+	data.Csrf = csrf
 	data.Csrf = c.Get(middleware.DefaultCSRFConfig.ContextKey).(string)
 	if err := c.Render(http.StatusOK, t.Name(), t.RenderPageModel("homepage", data)); err != nil {
 		return t.ServerError(c, err)

@@ -67,20 +67,21 @@ func main() {
 		errMessageExit(nil, "ошибка конфигурации", err)
 	}
 
+	debug := strings.ToLower(config.Mode) == "development"
 	var logsOutConfig = map[string]zaplog.LogConfig{
 		"logger": {
 			ErrorOutputPaths: []string{"stdout", filepath.Join(cfg.LogPath(), config.Name)},
-			Debug:            strings.ToLower(config.Mode) == "development",
+			Debug:            debug,
 			Console:          true,
 		},
 		"echo": {
 			ErrorOutputPaths: []string{filepath.Join(cfg.LogPath(), "echo")},
-			Debug:            strings.ToLower(config.Mode) == "development",
+			Debug:            debug,
 			Console:          false,
 		},
 		"reductor": {
 			ErrorOutputPaths: []string{filepath.Join(cfg.LogPath(), "reductor")},
-			Debug:            strings.ToLower(config.Mode) == "development",
+			Debug:            debug,
 			Console:          true,
 		},
 	}
