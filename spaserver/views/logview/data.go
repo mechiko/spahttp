@@ -34,7 +34,7 @@ func (t *page) PageModel() (*LogViewModel, error) {
 		return mdl, nil
 	}
 
-	return nil, fmt.Errorf("pagemodel ProdUtilModel wrong type %T", model)
+	return nil, fmt.Errorf("pagemodel LogViewModel wrong type %T", model)
 }
 
 // сброс модели редуктора для страницы

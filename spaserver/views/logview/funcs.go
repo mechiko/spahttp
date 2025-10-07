@@ -19,10 +19,13 @@ func GetLastLines(filepath string, start, count int) ([]string, error) {
 		return nil, fmt.Errorf("count lines in file error %w", err)
 	}
 	if start > allLine {
-		return nil, fmt.Errorf("in file %d lines but %d greate this", allLine, start)
+		return nil, fmt.Errorf("in file %d lines but %d is greater than this", allLine, start)
 	}
 	var cursor int64 = 0
-	stat, _ := fileHandle.Stat()
+	stat, err := fileHandle.Stat()
+	if err != nil {
+		return nil, fmt.Errorf("cannot stat file: %w", err)
+	}
 	filesize := stat.Size()
 	out := make([]string, 0)
 	if start > 0 {
@@ -78,22 +81,32 @@ func lineCounter(r io.Reader) (int, error) {
 }
 
 func lineNext(r *os.File, filesize int64, cursor *int64) (string, error) {
-	line := ""
+	var lineBytes []byte
 	// var cursor int64 = 0
 	for {
 		*cursor -= 1
 		r.Seek(*cursor, io.SeekEnd)
 		char := make([]byte, 1)
-		r.Read(char)
-		if *cursor != -1 && (char[0] == 10 || char[0] == 13) { // stop if we find a line
+		_, err := r.Read(char)
+		if err != nil {
+			return "", fmt.Errorf("read error: %w", err)
+		}
+		if *cursor != -1 && (char[0] == byte('\n')) { // stop if we find a line
 			break
 		}
-		line = fmt.Sprintf("%s%s", string(char), line) // there is more efficient way
-		if *cursor == -filesize {                      // stop if we are at the begining
+		if *cursor != -1 && (char[0] == byte('\r')) { // stop if we find a line
+			continue
+		}
+		lineBytes = append(lineBytes, char[0])
+		if *cursor == -filesize { // stop if we are at the begining
 			break
 		}
 	}
-	return line, nil
+	// Reverse the bytes since we read backwards
+	for i, j := 0, len(lineBytes)-1; i < j; i, j = i+1, j-1 {
+		lineBytes[i], lineBytes[j] = lineBytes[j], lineBytes[i]
+	}
+	return string(lineBytes), nil
 }
 
 func skipNext(r *os.File, filesize int64, cursor *int64) error {
@@ -101,9 +114,15 @@ func skipNext(r *os.File, filesize int64, cursor *int64) error {
 		*cursor -= 1
 		r.Seek(*cursor, io.SeekEnd)
 		char := make([]byte, 1)
-		r.Read(char)
-		if *cursor != -1 && (char[0] == 10 || char[0] == 13) { // stop if we find a line
+		_, err := r.Read(char)
+		if err != nil {
+			return fmt.Errorf("read error: %w", err)
+		}
+		if *cursor != -1 && (char[0] == byte('\n')) { // stop if we find a line
 			break
+		}
+		if *cursor != -1 && (char[0] == byte('\r')) { // skip if we find a line
+			continue
 		}
 		if *cursor == -filesize { // stop if we are at the begining
 			break

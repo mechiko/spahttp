@@ -42,7 +42,6 @@ func (t *page) HomePage(c echo.Context) error {
 		return t.ServerError(c, fmt.Errorf("CSRF token not found in context"))
 	}
 	data.Csrf = csrf
-	data.Csrf = c.Get(middleware.DefaultCSRFConfig.ContextKey).(string)
 	if err := c.Render(http.StatusOK, t.Name(), t.RenderPageModel("homepage", data)); err != nil {
 		return t.ServerError(c, err)
 	}

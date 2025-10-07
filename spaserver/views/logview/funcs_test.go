@@ -16,9 +16,9 @@ var testsLastLines = []struct {
 	start int
 }{
 	// the table itself
-	{"test 0", true, "1236", 0, 0},
-	{"test 1", false, "../../../cmd/.spahttp/echo", 10, 0},
-	{"test 2", false, "../../../cmd/.spahttp/echo", 10, 1100},
+	{"test 0", true, "nonexistent", 0, 0},
+	{"test 1", false, "testdata/echo", 10, 0},
+	{"test 2", false, "testdata/echo", 10, 1100},
 }
 
 func TestGetLastLines(t *testing.T) {

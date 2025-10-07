@@ -46,7 +46,7 @@ func NewModel(app domain.Apper) (*LogViewModel, error) {
 		FileName: filepath.Join(app.LogPath(), "reductor"),
 	}
 	if err := model.ReadState(app); err != nil {
-		return nil, fmt.Errorf("model prodtools read state %w", err)
+		return nil, fmt.Errorf("model logview read state %w", err)
 	}
 	return model, nil
 }
