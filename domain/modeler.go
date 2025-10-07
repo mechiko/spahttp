@@ -21,11 +21,12 @@ const (
 	Index       Model = "index"
 	Home        Model = "home"
 	Login       Model = "login"
+	LogView     Model = "logview"
 )
 
 func IsValidModel(s string) bool {
 	switch Model(s) {
-	case Application, NoPage, Header, Footer, Index, Home, Login:
+	case Application, NoPage, Header, Footer, Index, Home, Login, LogView:
 		return true
 	default:
 		return false
@@ -50,6 +51,8 @@ func ModelFromString(s string) (Model, error) {
 		return Home, nil
 	case string(Login):
 		return Login, nil
+	case string(LogView):
+		return LogView, nil
 	}
 	return "", fmt.Errorf("%s ошибочная модель domain.Model", s)
 }

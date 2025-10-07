@@ -73,16 +73,19 @@ func main() {
 			ErrorOutputPaths: []string{"stdout", filepath.Join(cfg.LogPath(), config.Name)},
 			Debug:            debug,
 			Console:          true,
+			Name:             filepath.Join(cfg.LogPath(), config.Name),
 		},
 		"echo": {
 			ErrorOutputPaths: []string{filepath.Join(cfg.LogPath(), "echo")},
 			Debug:            debug,
 			Console:          false,
+			Name:             filepath.Join(cfg.LogPath(), "echo"),
 		},
 		"reductor": {
 			ErrorOutputPaths: []string{filepath.Join(cfg.LogPath(), "reductor")},
 			Debug:            debug,
 			Console:          true,
+			Name:             filepath.Join(cfg.LogPath(), "reductor"),
 		},
 	}
 

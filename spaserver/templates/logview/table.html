@@ -1,0 +1,28 @@
+{{if $.Lines}}
+<table class="table-auto w-full bg-white border border-gray-300">
+  <thead>
+    <tr>
+      <th class="border border-gray-300 px-4 py-2">Level</th>
+      <th class="border border-gray-300 px-4 py-2">Timestamp</th>
+      <th class="border border-gray-300 px-4 py-2">Method</th>
+      <th class="border border-gray-300 px-4 py-2">Path</th>
+      <th class="border border-gray-300 px-4 py-2">Status</th>
+      <th class="border border-gray-300 px-4 py-2">Latency</th>
+    </tr>
+  </thead>
+  <tbody>
+  {{ range $.Lines }}
+    <tr>
+      <td class="border border-gray-300 px-4 py-2">{{.Lvl}}</td>
+      <td class="border border-gray-300 px-4 py-2">{{.Ts}}</td>
+      <td class="border border-gray-300 px-4 py-2">{{.Method}}</td>
+      <td class="border border-gray-300 px-4 py-2">{{.Path}}</td>
+      <td class="border border-gray-300 px-4 py-2">{{.Status}}</td>
+      <td class="border border-gray-300 px-4 py-2">{{.Latency}}</td>
+    </tr>
+  {{ end }}
+  </tbody>
+</table>
+{{else}}
+<div>No log entries found</div>
+{{end}}
