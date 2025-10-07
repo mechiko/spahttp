@@ -42,7 +42,7 @@ func (t *page) Page(c echo.Context) error {
 		return t.ServerError(c, fmt.Errorf("CSRF token not found in context"))
 	}
 	data.Csrf = csrf
-	if err := c.Render(http.StatusOK, t.Name(), t.RenderPageModel("homepage", data)); err != nil {
+	if err := c.Render(http.StatusOK, t.Name(), t.RenderPageModel("page", data)); err != nil {
 		return t.ServerError(c, err)
 	}
 	return nil

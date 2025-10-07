@@ -85,9 +85,12 @@ func lineNext(r *os.File, filesize int64, cursor *int64) (string, error) {
 	// var cursor int64 = 0
 	for {
 		*cursor -= 1
-		r.Seek(*cursor, io.SeekEnd)
+		_, err := r.Seek(*cursor, io.SeekEnd)
+		if err != nil {
+			return "", fmt.Errorf("seek error: %w", err)
+		}
 		char := make([]byte, 1)
-		_, err := r.Read(char)
+		_, err = r.Read(char)
 		if err != nil {
 			return "", fmt.Errorf("read error: %w", err)
 		}
@@ -112,9 +115,12 @@ func lineNext(r *os.File, filesize int64, cursor *int64) (string, error) {
 func skipNext(r *os.File, filesize int64, cursor *int64) error {
 	for {
 		*cursor -= 1
-		r.Seek(*cursor, io.SeekEnd)
+		_, err := r.Seek(*cursor, io.SeekEnd)
+		if err != nil {
+			return fmt.Errorf("seek error: %w", err)
+		}
 		char := make([]byte, 1)
-		_, err := r.Read(char)
+		_, err = r.Read(char)
 		if err != nil {
 			return fmt.Errorf("read error: %w", err)
 		}
