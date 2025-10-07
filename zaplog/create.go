@@ -18,6 +18,7 @@ type LogConfig struct {
 	ErrorOutputPaths []string
 	Debug            bool
 	Console          bool // true - "console" false - "json"
+	Name             string
 }
 
 func isValidLogName(s string) bool {
